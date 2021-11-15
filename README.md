@@ -1,5 +1,5 @@
 # ICC_algorithm_implement
-Inference Resource Reservation for Joint Distributed Training and Inference with Edge Cooperation
+Inference Resource Reservation for Joint Distributed Training and Inference with Edge Cooperation algorithm implementation.
 # Denpendency
 panda  
 tqdm  
