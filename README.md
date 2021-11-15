@@ -2,8 +2,8 @@
 Inference Resource Reservation for Joint Distributed Training and Inference with Edge Cooperation
 # Denpendency
 panda  
-tqdm
-torch
+tqdm  
+torch  
 torchvision  
 ptflops  
 # File Description
