@@ -1,20 +1,21 @@
 from Taskgraph_pre import GRAPH_PRE_A,GRAPH_PRE_ResNet18,GRAPH_PRE_Vgg16,GRAPH_PRE_Inceptionv3,GRAPH_PRE_AlexNet
 
-decistion_time_number = 10
+# configure
+decistion_time_number = 2
 default_timewindow = 30
 
 
 lookahead_window_size = default_timewindow
 
-# --------------任务合成---------------
+# --------------Task Composing---------------
 # task_dict_list = []
 # 1:max workload 2:min workload 3: fcfs 4 max budget 5 min budget
 # order_mode = 3
-# 根据不同规则(1:max workload 2: min workload 3: fcfs 4 budget) 对子任务编号和遍历
+# (1:max workload 2: min workload 3: fcfs 4 budget) 
 # taskindex2order_map,order2taskindex_map,order2subtaskindex_map = None,None,None
 # visit_order = None
 
-# 按一定顺序 先来先到的顺序 构造map
+# FIFO order map
 def connect_graph_map_from_pre(task_dict_list,visit_order):
     addnum = 1
     taskindex2order_map = [[] for i in range(len(task_dict_list))]
@@ -59,7 +60,6 @@ def connect_graph_workload_datasize(task_dict_list,visit_order):
     
     return workload,datasize
 
-# 按一定顺序 先来先到的顺序 编号和连接成大图
 def connect_graph_succ(task_dict_list,visit_order):
     succ = []
     exit_node = []
@@ -108,7 +108,7 @@ def select_order_from_mode(task_dict_list,order_mode=3):
     import numpy as np
     # 1:max workload 2:min workload 3: fcfs 4 max budget 5 min budget
     if order_mode == 1:
-        # 获得任务负载按大到小的任务号序列
+        # follow workload order from large to small 
         task_workload_list = []
         for task_index,task in enumerate(task_dict_list):
             sum_task_worklaod = sum(task["workload"])
@@ -117,7 +117,7 @@ def select_order_from_mode(task_dict_list,order_mode=3):
         visit_order = np.argsort(-task_workload_list)
 
     elif order_mode == 2:
-        # 获得任务负载按小到大的任务号序列
+        # follow workload order from samll to large
         task_workload_list = []
         for task_index,task in enumerate(task_dict_list):
             sum_task_worklaod = sum(task["workload"])
@@ -126,24 +126,10 @@ def select_order_from_mode(task_dict_list,order_mode=3):
         visit_order = np.argsort(task_workload_list)
 
     elif order_mode == 3:
-        # 获得任务先来后到序列
+        # follow FIFO
         visit_order = [i for i in range(len(task_dict_list))]
 
-    elif order_mode == 4:
-        # 获得任务预算按大到小的任务号序列
-        task_budget_list = []
-        for task_index,task in enumerate(task_dict_list):
-            task_budget_list.append(task["budget"])
-        task_budget_list = np.array(task_budget_list)
-        visit_order = np.argsort(-task_budget_list)
-
-    elif order_mode == 5:
-        # 获得任务负载按小到大的任务号序列
-        task_budget_list = []
-        for task_index,task in enumerate(task_dict_list):
-            task_budget_list.append(task["budget"])
-        task_budget_list = np.array(task_budget_list)
-        visit_order = np.argsort(task_budget_list)
+ 
     return visit_order
 
 def connect_graph(task_dict_list):
@@ -155,33 +141,28 @@ def connect_graph(task_dict_list):
     taskindex2order_map,order2taskindex_map,order2subtaskindex_map = connect_graph_map_from_pre(task_dict_list,visit_order)
 
     return pre,succ,workload,datasize,taskindex2order_map,order2taskindex_map,order2subtaskindex_map
-# --------------任务合成---------------
 
-# --------------任务外部读写合---------------
-# 从文件得到任务的负载权重
+
+# --------------Task loading---------------
+# get the workload from file
 def get_workload_and_datasize(filename,tasktype):
     import pandas as pd
 
     df = pd.read_csv(filename, delimiter=',')
 
     if tasktype == 0:
-        # 对DNN数据进行规约化
+        
         workload = df['GFLOPS'].tolist()
         datasize = df['assigned_memory_usage'].tolist()
-        # 浮点次数 GFLOPS 
+        #  GFLOPS 
         datasize = [tmp for tmp in datasize]
-        # 向量数据量 以一个float型存储 16位 2B 单位为B
+        # loat 16bit 2B
         workload = [tmp * 2 for tmp in workload]
-    else:
-        # 对Google cluster数据进行规约化
-        workload = df['CPU_rate'].tolist()
-        datasize = df['assigned_memory_usage'].tolist()
-        datasize = [tmp * 256 * 10 for tmp in datasize]
-        workload = [tmp * 600 for tmp in workload]
+ 
     
     return workload, datasize
 
-# 从前序得后序
+# get task_succ from task_pre
 def get_succ_from_pre(pre):
     succ = []
 
@@ -195,10 +176,9 @@ def get_succ_from_pre(pre):
 
     return succ
 
-# 设置任务图的权重负载参数
+# setting workload and data size
 def get_task_graph_paramerters(taskgraphname,tasktype):
     '''
-    根据任务图类型 获取任务图相关的参数
     * workload
     * datasize
     * pre
@@ -278,10 +258,10 @@ def get_connect_multiple_task_graph(request_number_list,taskgraph_list,tasktype)
             task_dict_list.append(task_dict)
     return connect_graph(task_dict_list)
     
-# --------------任务外部读写合---------------
 
-# --------------时间线生成器---------------
-# 生成随机分布的得数
+
+# --------------Timeline Generation---------------
+# random number generation
 def get_normal_ratio(ava_ratio,sigma):
     from scipy.stats import truncnorm
     from scipy.stats import norm
@@ -295,7 +275,7 @@ def get_normal_ratio(ava_ratio,sigma):
     samples = X.rvs(1)
     return samples[0]
 
-# 在每台server生成随机有效时间线
+# random timeline generation for each edge server
 def generate_randomtimeline(num_edges,start_ratio,start_sigma,timewindow=default_timewindow,timenumber=decistion_time_number,ratio_sigma=0.1,ava_ratio=0.5): 
     import random
     totaltime = timenumber * timewindow
@@ -315,7 +295,6 @@ def generate_randomtimeline(num_edges,start_ratio,start_sigma,timewindow=default
             unavailable_time = (1-distribute_ava_ratio) * timewindow
             unavailable_start_time_related = (distribute_start_ratio) * timewindow
 
-            # 在分布式学习中 前空闲出来的传输空闲 还有 后空闲出来的等待更新空闲
 
             front_available_starttime = start_time
             front_available_endtime = start_time + unavailable_start_time_related
@@ -350,4 +329,3 @@ def generate_randomtimeline(num_edges,start_ratio,start_sigma,timewindow=default
         ava_time_list.append(tmp_ava_time_list)
     return decision_time_list,ava_time_list
 
-# --------------时间线生成器---------------

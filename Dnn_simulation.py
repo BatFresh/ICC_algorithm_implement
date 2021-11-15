@@ -9,7 +9,7 @@ ALGOR_NAME_LIST = [
 ]
 # 
 
-# 'Global View LBCK'
+#--------------Configure-------------
 # DNN FLOP:0 Google :1
 defalut_tasktype = [0,0,0]
 
@@ -26,21 +26,13 @@ defalut_sigma = 0.05
 defalut_start_ratio = 0.2
 defalut_start_sigma = 0.05
 
-# compare nice_expdata1
-# defalut_start_ratio = 0.01
-# defalut_start_sigma = 0.1
 
 defalut_max_cpu_capbility = 305
 
-# default_timewindow = 0.02
-# default_timewindow_number = 50
-# default_totaltime = default_timewindow * default_timewindow_number
-
-# defalut_deadline = 50
 defalut_request_number = [200,200,200]
 
-# --------------指标---------------
-# 获取算法结果的完成时间
+# --------------Metrix---------------
+# get the total completion time
 def get_max_time(anslist):
     max_time = -1
     if anslist == 2 or anslist == 3:
@@ -53,10 +45,9 @@ def get_max_time(anslist):
 
     return max_time
 
-# 获取算法结果的吞吐率
+# get the throughput
 def get_throught_ratio(anslist,deadline):
-    # 2 -> budget 无法调度
-    # 3 -> 有效时隙无法调度
+    
     max_time = 0
     if anslist == 3 or anslist == 2:
         return 0
@@ -70,7 +61,7 @@ def get_throught_ratio(anslist,deadline):
         return 0
     # return max_time
 
-# 获取算法运行时间
+# get algorithm running time
 def get_run_time():
     import time
 
@@ -133,7 +124,7 @@ def result_ratiocal(result_dict_list,inter_num):
     for i in range(len(result_dict_list)):
         for key in avg_dict.keys():
             for j in range(len(avg_dict[key])):
-                # 遍历参数组
+                
                 avg_dict[key][j] += result_dict_list[i][key][j][0]
 
     for key in avg_dict.keys():
@@ -153,7 +144,7 @@ def result_timecal(result_dict_list,inter_num):
     for i in range(len(result_dict_list)):
         for key in tmp_dict.keys():
             for j in range(len(result_dict_list[i][key])):
-                # 遍历参数组
+                
                 if result_dict_list[i][key][j][0] != -1:
                     tmp_dict[key][j].append(result_dict_list[i][key][j][0])
 
@@ -172,7 +163,7 @@ def result_timecal(result_dict_list,inter_num):
                 avg_dict[key][j] = -1
     return avg_dict
  
-# --------------指标---------------
+# --------------Metrix---------------
 
 def taskgraph_exp(data_prefix, taskgraph,**kwargs):
     # from code02 import set_paramerters,get_time_list
@@ -287,15 +278,7 @@ def taskgraph_exp(data_prefix, taskgraph,**kwargs):
 
             edge_num_time_list += get_algorithm_timelist()
 
-            # 将配置信息写入文件当中
-            # with open("{0}_{1}_paramerters.txt".format(data_prefix, edge_num), 'a+') as file:
-            #     file.write("\n")
-            #     file.write("edge num: {0}\n avatime_list: {1}\n avatime_raido: {2}\n edge computer capability: {3}\n "
-            #                "resource upbound: {4}\n n look: {5} random time: {6}\n bandwidth edge: {7} resouce upbound: {8}\n".format(
-            #         edge_num, avatimelist, avatime_radio, edge_computer_cability, resouce_upbound, n_look, random_time, W, resouce_upbound
-            #     ))
-
-            # 实验数据记录
+            
             for i in range(len(edge_num_time_list)):
                 # ratio_list[i].append([get_throught_ratio(edge_num_time_list[i],deadline=defalut_deadline)])
                 time_list[i].append([get_max_time(edge_num_time_list[i])])
@@ -342,21 +325,13 @@ def taskgraph_exp(data_prefix, taskgraph,**kwargs):
 
         edge_num_time_list += get_algorithm_timelist()
 
-        # 将配置信息写入文件当中
-        # with open("{0}_{1}_paramerters.txt".format(file_prefix, edge_num), 'a+') as file:
-        #     file.write("\n")
-        #     file.write("edge num: {0}\n avatime_list: {1}\n avatime_raido: {2}\n edge computer capability: {3}\n "
-        #                "resource upbound: {4}\n n look: {5} random time: {6}\n bandwidth edge: {7} resouce upbound: {8}\n".format(
-        #         edge_num, avatimelist, avatime_radio, edge_computer_cability, resouce_upbound, n_look, random_time, W,
-        #         resouce_upbound
-        #     ))
-
+        
         for i in range(len(edge_num_time_list)):
-            # 实验数据记录
+            
             # ratio_list[i].append(get_throught_ratio(edge_num_time_list[i],deadline=defalut_deadline))
             time_list[i].append(get_max_time(edge_num_time_list[i]))
 
-    # 实验数据分算法记录
+    
     time_dict = {}
     for i in range(len(time_list)):
         time_dict[ALGOR_NAME_LIST[i]] = time_list[i]
@@ -369,9 +344,7 @@ def taskgraph_exp(data_prefix, taskgraph,**kwargs):
 
 def taskgraph_exp_runtime(data_prefix, taskgraph,**kwargs):
     '''
-    实验7
-    获取不同边缘服务器数量下两个算法的任务运行时间
-    需要修改所有边缘服务器相关参数：
+    running time exp
     * edge_num
     * ava_time_list
     * random_time
@@ -481,26 +454,18 @@ def taskgraph_exp_runtime(data_prefix, taskgraph,**kwargs):
 
         edge_num_time_list += get_run_time()
 
-        # 将配置信息写入文件当中
-        # with open("{0}_{1}_paramerters.txt".format(data_prefix, edge_num), 'a+') as file:
-        #     file.write("\n")
-        #     file.write("edge num: {0}\n avatime_list: {1}\n avatime_raido: {2}\n edge computer capability: {3}\n "
-        #                "resource upbound: {4}\n n look: {5} random time: {6}\n bandwidth edge: {7} resouce upbound: {8}\n".format(
-        #         edge_num, avatimelist, avatime_radio, edge_computer_cability, resouce_upbound, n_look, random_time, W, resouce_upbound
-        #     ))
-
-        # 实验数据记录
+        
         for i in range(len(edge_num_time_list)):
             runtime_list[i].append([edge_num_time_list[i]])
 
-    # 实验数据分算法记录
+    
     runtime_dict = {}
     for i in range(len(runtime_list)):
         runtime_dict[ALGOR_NAME_LIST[i]] = runtime_list[i]
 
     return runtime_dict
 
-# CPU处理速率
+# with the processing capacity of processor 
 def exp_2_graph(taskgraphtype, expprefix):
     
     import pandas as pd
@@ -535,7 +500,7 @@ def exp_2_graph(taskgraphtype, expprefix):
             # print(avatimelist)
             # print("decision_time_list:")
             # print(decision_time_list)
-            # 不同算法的一次实验
+            
             time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,
                                     task_info = task_info,
                                     max_edge_num=defalut_edge_nums, 
@@ -560,7 +525,7 @@ def exp_2_graph(taskgraphtype, expprefix):
     # df = pd.DataFrame(data=avg_ratio_dict)
     # df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'ratio' , expprefix), index=True)
 
-# 传输随机扰动
+# with the extra delay 
 def exp_3_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -593,7 +558,7 @@ def exp_3_graph(taskgraphtype, expprefix):
             # print(avatimelist)
             # print("decision_time_list:")
             # print(decision_time_list)
-            # 不同算法的一次实验
+           
             time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,task_info=task_info,
                                     max_edge_num=defalut_edge_nums, 
                                     avatimelist=avatimelist,
@@ -617,7 +582,7 @@ def exp_3_graph(taskgraphtype, expprefix):
     # df = pd.DataFrame(data=avg_ratio_dict)
     # df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'ratio' , expprefix), index=True)
 
-# 服务器数量影响
+# with the number of edge servers
 def exp_1_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -649,7 +614,7 @@ def exp_1_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
 
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,task_info=task_info,
                                 change_edge_num=True)
@@ -671,7 +636,7 @@ def exp_1_graph(taskgraphtype, expprefix):
     # df = pd.DataFrame(data=avg_ratio_dict)
     # df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'ratio' , expprefix), index=True)
 
-# 服务器数量的运行时间
+# with the number of edge severs for running time
 def exp_7_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -692,8 +657,7 @@ def exp_7_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
-
+        
         runtime_dict = taskgraph_exp_runtime("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,task_info=task_info,
                                 change_edge_num=True)
 
@@ -708,7 +672,7 @@ def exp_7_graph(taskgraphtype, expprefix):
     df = pd.DataFrame(data=avg_runtime_dict)
     df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'run_time' ,expprefix), index=True)
 
-# 任务比例(待)
+# with ratio and number of inference task
 def exp_41_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -737,7 +701,7 @@ def exp_41_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), 
         taskgraphtype,task_info=task_info,
                                 change_edge_num=True)
@@ -786,7 +750,7 @@ def exp_42_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), 
         taskgraphtype,task_info=task_info,
                                 change_edge_num=True)
@@ -836,7 +800,7 @@ def exp_43_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), 
         taskgraphtype,task_info=task_info,
                                 change_edge_num=True)
@@ -858,7 +822,7 @@ def exp_43_graph(taskgraphtype, expprefix):
     # df = pd.DataFrame(data=avg_ratio_dict)
     # df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'ratio' , expprefix), index=True)
 
-# 有效时间比例
+# with the ratio of available time
 def exp_5_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -890,7 +854,7 @@ def exp_5_graph(taskgraphtype, expprefix):
             # print(avatimelist)
             # print("decision_time_list:")
             # print(decision_time_list)
-            # 不同算法的一次实验
+           
             time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,task_info=task_info,
                                     max_edge_num=defalut_edge_nums, 
                                     avatimelist=avatimelist,
@@ -913,7 +877,7 @@ def exp_5_graph(taskgraphtype, expprefix):
     # df = pd.DataFrame(data=avg_ratio_dict)
     # df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'ratio' , expprefix), index=True)
 
-# private task interval分布--稳定性
+# with distribution of unavailable interval for the algorithm stable
 def exp_61_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -941,7 +905,7 @@ def exp_61_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), 
         taskgraphtype,start_ratio=start_time_ratio,start_sigma=start_time_sigma,task_info=task_info,
                                 change_edge_num=True)
@@ -990,7 +954,7 @@ def exp_62_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), 
         taskgraphtype,start_ratio=start_time_ratio,start_sigma=start_time_sigma,task_info=task_info,
                                 change_edge_num=True)
@@ -1040,7 +1004,7 @@ def exp_63_graph(taskgraphtype, expprefix):
         # print(avatimelist)
         # print("decision_time_list:")
         # print(decision_time_list)
-        # 不同算法的一次实验
+        
         time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), 
         taskgraphtype,start_ratio=start_time_ratio,start_sigma=start_time_sigma,task_info=task_info,
                                 change_edge_num=True)
@@ -1062,7 +1026,7 @@ def exp_63_graph(taskgraphtype, expprefix):
     # df = pd.DataFrame(data=avg_ratio_dict)
     # df.to_csv("{0}_{1}_{2}_{3}.csv".format('graph_iteration',str(inter_num),'ratio' , expprefix), index=True)
 
-# look_ahead window size 1-10
+# look_ahead window size 0.1-0.46
 def exp_8_graph(taskgraphtype, expprefix):
     import pandas as pd
     from tqdm import tqdm
@@ -1095,7 +1059,7 @@ def exp_8_graph(taskgraphtype, expprefix):
             # print(avatimelist)
             # print("decision_time_list:")
             # print(decision_time_list)
-            # 不同算法的一次实验
+            
             time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,task_info=task_info,
                                     max_edge_num=defalut_edge_nums, 
                                     avatimelist=avatimelist,
@@ -1154,7 +1118,7 @@ def exp_9_graph(taskgraphtype, expprefix):
             # print(avatimelist)
             # print("decision_time_list:")
             # print(decision_time_list)
-            # 不同算法的一次实验
+            
             time_dict = taskgraph_exp("graph_iteration_{0}_{1}".format(i + 1, expprefix), taskgraphtype,task_info=task_info,
                                     max_edge_num=defalut_edge_nums, 
                                     avatimelist=avatimelist,
